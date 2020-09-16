@@ -6,6 +6,7 @@ var mysql = require('mysql');
 const { read } = require('fs');
 
 produccion = false
+produccion = true
 
 var app = express();
 
