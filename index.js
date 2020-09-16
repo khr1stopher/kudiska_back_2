@@ -5,15 +5,27 @@ var bodyParser = require('body-parser');
 var mysql = require('mysql');
 const { read } = require('fs');
 
+produccion = false
 
 var app = express();
 
-var con = mysql.createConnection({
-   host: "localhost",
-   user: "root",
-   password: "",
-   database: "laravel_3"
- });
+if(produccion){
+   conexion_data = {
+      host: "localhost",
+      user: "kudiska_user",
+      password: "(jsrd(BE7U",
+      database: "laravel_3"
+   }
+} else {
+   conexion_data = {
+      host: "localhost",
+      user: "root",
+      password: "",
+      database: "laravel_3"
+   }
+}
+
+var con = mysql.createConnection(conexion_data);
  
  con.connect(function(err) {
    if (err) throw err;
