@@ -5,8 +5,8 @@ var bodyParser = require('body-parser');
 var mysql = require('mysql');
 const { read } = require('fs');
 
-produccion = false
-produccion = true
+const { produccion } = require('./config.js');
+// produccion = true
 
 var app = express();
 
@@ -52,16 +52,11 @@ app.post('/user/add', (req, res) => {
    usuario = req.body
    sql = `INSERT INTO users (\`id\`,\`firstname\`, \`lastname\`, \`years_old\`, \`phone\`,\`email\`, \`password\`, \`time_create\`) VALUES (NULL, '${usuario.firstname}', '${usuario.lastname}', ${usuario.years_old}, '${usuario.phone}', '${usuario.email}', '${usuario.password}', '${new Date().toISOString()}')`
    respuesta = 'nada'
-   try{
-      con.query(sql, (err, result) => {
-         if (err) throw err;
-         res.status(200)
-         res.json(result);
-      });
-   } catch (e) {
-
-   }
-   res.send(respuesta);
+   con.query(sql, (err, result) => {
+      if (err) throw err;
+      res.status(200)
+      res.json(result);
+   });
 });
 
 app.post('/user', (req, res) => {
