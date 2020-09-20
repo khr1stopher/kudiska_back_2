@@ -3,6 +3,8 @@ var cors = require('cors');
 const nodemailer = require("nodemailer");
 var bodyParser = require('body-parser');
 var mysql = require('mysql');
+var bodyParser = require('body-parser');
+const process = require('process');
 const { read } = require('fs');
 
 const { produccion } = require('./config.js');
@@ -13,21 +15,21 @@ key = "sdcjagx_ajsbxibeqoidbnoixniqnd9ueqdniednxiendiendededlendiendoie"
 
 var app = express();
 
-// if(produccion){
+if(process.argv.indexOf('--prod') !== -1){
    conexion_data = {
       host: "127.0.0.1",
       user: "kudiska_user",
       password: "(jsrd(BE7U",
       database: "laravel_3"
    }
-// } else {
-//    conexion_data = {
-//       host: "localhost",
-//       user: "root",
-//       password: "",
-//       database: "laravel_3"
-//    }
-// }
+} else {
+   conexion_data = {
+      host: "localhost",
+      user: "root",
+      password: "",
+      database: "laravel_3"
+   }
+}
 
 async function send_mail(De = "LanzaApp", para, asunto, msg) {
    // Generate test SMTP service account from ethereal.email
@@ -165,11 +167,37 @@ app.post('/user', (req, res) => {
    send_mail("LanzaApp", "kpineda18@outlook.com","probando mailer", "<b>probando si manda correo</b>").catch(console.error)
 });
 
-puerto = 3000
+// Escuchar peticiones
+if(process.argv.indexOf('--prod') !== -1){
+   // entra aqui si corres el proyecto con node app.js --prod
+   console.log('corriendo en modo produccion');
+   const fs = require('fs');
+   const https = require('https');
+   
+   
+   // donde dice www.kecuki.com deberias poner el dominio de www.kudiska.com ya que en kecuki lo hicieron con el mismo letsencrypt
+   const privateKey = fs.readFileSync('/etc/letsencrypt/live/www.kudiska.com/privkey.pem', 'utf8');
+   const certificate = fs.readFileSync('/etc/letsencrypt/live/www.kudiska.com/cert.pem', 'utf8');
+   const ca = fs.readFileSync('/etc/letsencrypt/live/www.kudiska.com/chain.pem', 'utf8');
+   
+   const credentials = {
+      key: privateKey,
+      cert: certificate,
+      ca: ca
+   };
+   
+   // aqui crea el servidor https
+   const httpsServer = https.createServer(credentials, app);
+   httpsServer.listen(3000)
+   console.log('Express server puerto 3000: \x1b[32m%s\x1b[0m', 'online');
+   
+}else{
+   // aqui crea un servidor http normal
+   console.log('corriendo localmente con http...');
+   var server = app.listen(3000, () => {
+      console.log('Express server puerto 3000: \x1b[32m%s\x1b[0m', 'online');
+   });
+}
+   
 
-var server = app.listen(puerto, () => {
-   console.log(`Express server ${puerto}: \x1b[32m%s\x1b[0m`, 'online');
-});
-
-
-send_mail("LanzaApp", "kpineda18@outlook.com","probando mailer", "<b>probando si manda correo</b>").catch(console.error);
+// send_mail("LanzaApp", "kpineda18@outlook.com","probando mailer", "<b>probando si manda correo</b>").catch(console.error);
