@@ -49,9 +49,13 @@ app.get('*', (req, res) => {
 });
 
 app.post('/user/add', (req, res) => {
+
+   console.log(req.body)
+
    usuario = req.body;
    usuario.time_create = new Date().toISOString()
    sql = `INSERT INTO users (\`id\`, \`firstname\` ,  \`lastname\` ,  \`years_old\` ,  \`phone\` , \`email\` ,  \`password\` ,  \`time_create\` ) VALUES (?)`
+   
    con.query(sql,usuario,(err, result) => {
       if (err) throw err;
       res.status(200)
@@ -62,6 +66,7 @@ app.post('/user/add', (req, res) => {
 app.post('/user', (req, res) => {
    usuario = req.body
    sql = `SELECT * FROM \`users\` WHERE \`email\`='${usuario.email}' AND \`password\`='${usuario.password}'`
+   
    con.query(sql, (err, result) => {
       // if (err) throw err;
       res.status(200)
@@ -110,4 +115,4 @@ async function send_mail(De = "LanzaApp", para, asunto, msg) {
    // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
  }
  
- send_mail("LanzaApp", "kpineda18@outlook.com","probando mailer", "<b>probando si manda correo</b>").catch(console.error);
+//  send_mail("LanzaApp", "kpineda18@outlook.com","probando mailer", "<b>probando si manda correo</b>").catch(console.error);
