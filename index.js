@@ -13,21 +13,21 @@ key = "sdcjagx_ajsbxibeqoidbnoixniqnd9ueqdniednxiendiendededlendiendoie"
 
 var app = express();
 
-// if(produccion){
+if(produccion){
    conexion_data = {
       host: "127.0.0.1",
       user: "kudiska_user",
       password: "(jsrd(BE7U",
       database: "laravel_3"
    }
-// } else {
-//    conexion_data = {
-//       host: "localhost",
-//       user: "root",
-//       password: "",
-//       database: "laravel_3"
-//    }
-// }
+} else {
+   conexion_data = {
+      host: "localhost",
+      user: "root",
+      password: "",
+      database: "laravel_3"
+   }
+}
 
 async function send_mail(De = "LanzaApp", para, asunto, msg) {
    // Generate test SMTP service account from ethereal.email
@@ -43,6 +43,9 @@ async function send_mail(De = "LanzaApp", para, asunto, msg) {
        user: 'admin@kudiska.com', // generated ethereal user
        pass: 'y,3]yqD4Vqau', // generated ethereal password
      },
+     tls: { 
+      rejectUnauthorized: false 
+      }
    });
  
 // http://api.ipify.org/?format=jsonp&callback=JSONP_CALLBACK
@@ -55,6 +58,7 @@ async function send_mail(De = "LanzaApp", para, asunto, msg) {
    //   text: "Hello world?", // plain text body
      html: msg, // html body
    });
+   
  
    console.log("Message sent: %s", info.messageId);
    // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
