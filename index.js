@@ -11,6 +11,8 @@ const { produccion } = require('./config.js');
 const { time } = require('console');
 // produccion = true
 
+var hbs = require('nodemailer-express-handlebars');
+
 key = "sdcjagx_ajsbxibeqoidbnoixniqnd9ueqdniednxiendiendededlendiendoie"
 
 var app = express();
@@ -70,6 +72,62 @@ async function send_mail(De = "LanzaApp", para, asunto, msg) {
    // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
 }
 
+tokenNumber = () => {
+   return 'xxxxxxxxxxxxxxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+     var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);      
+     return v.toString(16);
+   });
+}
+
+verification = async (user) => {
+   let mailer = nodemailer.createTransport({
+       host: 'smtp.kudiska.com',
+       port: 587,
+       secure: false, // true for 465, false for other ports
+       auth: {
+           user: 'admin@kudiska.com', // generated ethereal user
+           pass: 'y,3]yqD4Vqau' // generated ethereal password
+         }
+      });
+   
+   mailer.use('compile', hbs({
+       viewEngine : {
+           extname: '.hbs', // handlebars extension
+           layoutsDir: 'views/email/', // location of handlebars templates
+           defaultLayout:'verification',
+           partialsDir: 'views/email/', // location of your subtemplates aka. header, footer etc
+       },
+       viewPath: 'views/email',
+       extName: '.hbs'
+       }));
+   mailer.sendMail({
+       from: 'no-reply@lanzaApp.com',
+       to:  user.email,
+       subject: `Verificar cuenta`,
+       template: 'verification',
+       context: {
+           name: user.firstname,
+           last_name: user.lastname || '',
+           link:`${url}/verification?token=${user.verification_token}`
+           
+       }
+       }, (error, response)=>{
+           if(error){
+               console.log(error);
+               setTimeout(() => {
+                  verification(user)
+               }, 5000);
+          
+           }else{
+               console.log(response);
+               
+           }
+          
+           
+       }) 
+
+}
+
 var con = mysql.createConnection(conexion_data);
  
 con.connect();
@@ -118,42 +176,20 @@ app.post('/user/add', (req, res) => {
    // console.log(req.body)
 
    usuario = req.body;
+   usuario.verification_token = tokenNumber()
    time_create = new Date().toISOString()
    last_session_time = time_create
    // last_session_ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
    
-   sql = `INSERT INTO \`users\`(\`id\`, \`firstname\`, \`lastname\`, \`years_old\`, \`phone\`, \`confirmed\`, \`email\`, \`password\`, \`time_create\`, \`last_session_time\`) VALUES (NULL,'${usuario.firstname}','${usuario.lastname}',${usuario.years_old},'${usuario.phone}',NULL,'${usuario.email}','${usuario.password}',"${time_create}","${last_session_time}")`
+   sql = `INSERT INTO \`users\`(\`id\`, \`firstname\`, \`lastname\`, \`years_old\`, \`phone\`, \`confirmed\`, \`email\`, \`password\`, \`time_create\`,\`last_session_time\`) VALUES (NULL,'${usuario.firstname}','${usuario.lastname}',${usuario.years_old},'${usuario.phone}',NULL,'${usuario.email}','${usuario.password}',"${time_create}","${last_session_time}")`
    
    con.query(sql,(err, result) => {
       if (err) throw err;
       res.json(result);
       res.status(200)
    });
-   send_mail("LanzaApp", "kpineda18@outlook.com","Activar Cuenta", `
-   <!DOCTYPE html>
-   <html lang="en">
-   <head>
-       <meta charset="UTF-8">
-       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-       <title>Document</title>
-       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-   </head>
-   <body class="d-flex flex-column justify-content-center align-items-center">
-   <style>body{height: 100vh;}.imagen{}.imagen img{max-width: 300px;}
-   </style>
-   <div class="d-flex flex-column justify-content-center align-items-center">
-       <h2>Lanza App</h2>
-       <div class="imagen">
-           <img src="https://kudiska.com/assets/kudiska.png">
-       </div>
-       <p>!Hola, Sr <b>${usuario.firstname} ${usuario.lastname}</b>, Bienvenido a LanzaApp </p>
-       <p>Para completar el registro aga click en el boton de abajo para confirmar su cuenta</p>
-       <a class="btn btn-primary" href="http://kudiska.com:3000/validate/validate/?key=${key}&email=${usuario.email}&pass=${usuario.pass}">Verificar</a>
-   </div>    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-   </body>
-   </html>`).catch(console.error)
+
+   verification(usuario)
 
 });
 
@@ -166,7 +202,7 @@ app.post('/user', (req, res) => {
       res.status(200)
       res.json(result);
    });
-   send_mail("LanzaApp", "kpineda18@outlook.com","probando mailer", "<b>probando si manda correo</b>").catch(console.error)
+   // send_mail("LanzaApp", "kpineda18@outlook.com","probando mailer", "<b>probando si manda correo</b>").catch(console.error)
 });
 
 // Escuchar peticiones
@@ -175,9 +211,7 @@ if(process.argv.indexOf('--prod') !== -1){
    console.log('corriendo en modo produccion');
    const fs = require('fs');
    const https = require('https');
-   
-   
-   // donde dice www.kecuki.com deberias poner el dominio de www.kudiska.com ya que en kecuki lo hicieron con el mismo letsencrypt
+
    const privateKey = fs.readFileSync('/etc/letsencrypt/live/www.kudiska.com/privkey.pem', 'utf8');
    const certificate = fs.readFileSync('/etc/letsencrypt/live/www.kudiska.com/cert.pem', 'utf8');
    const ca = fs.readFileSync('/etc/letsencrypt/live/www.kudiska.com/chain.pem', 'utf8');
