@@ -9,7 +9,7 @@ const { read } = require('fs');
 var hbs = require('nodemailer-express-handlebars');
 const { produccion } = require('./config.js');
 const { time } = require('console');
-const { url } = require('inspector');
+// const { url } = require('inspector');
 // produccion = true
 
 key = "sdcjagx_ajsbxibeqoidbnoixniqnd9ueqdniednxiendiendededlendiendoie"
