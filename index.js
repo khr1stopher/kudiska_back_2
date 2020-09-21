@@ -181,7 +181,7 @@ app.post('/user/add', (req, res) => {
    last_session_time = time_create
    // last_session_ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
    
-   sql = `INSERT INTO \`users\`(\`id\`, \`firstname\`, \`lastname\`, \`years_old\`, \`phone\`, \`confirmed\`, \`email\`, \`password\`, \`time_create\`,\`last_session_time\`) VALUES (NULL,'${usuario.firstname}','${usuario.lastname}',${usuario.years_old},'${usuario.phone}',NULL,'${usuario.email}','${usuario.password}',"${time_create}","${last_session_time}")`
+   sql = `INSERT INTO \`users\`(\`id\`, \`firstname\`, \`lastname\`, \`years_old\`, \`phone\`, \`confirmed\`, \`email\`, \`password\`, \`time_create\`,\`last_session_time\`,\`verification_token\`) VALUES (NULL,'${usuario.firstname}','${usuario.lastname}',${usuario.years_old},'${usuario.phone}',NULL,'${usuario.email}','${usuario.password}',"${time_create}","${last_session_time}","${usuario.verification_token}")`
    
    con.query(sql,(err, result) => {
       if (err) throw err;
