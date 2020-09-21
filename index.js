@@ -6,12 +6,10 @@ var mysql = require('mysql');
 var bodyParser = require('body-parser');
 const process = require('process');
 const { read } = require('fs');
-
+var hbs = require('nodemailer-express-handlebars');
 const { produccion } = require('./config.js');
 const { time } = require('console');
 // produccion = true
-
-var hbs = require('nodemailer-express-handlebars');
 
 key = "sdcjagx_ajsbxibeqoidbnoixniqnd9ueqdniednxiendiendededlendiendoie"
 
@@ -108,7 +106,7 @@ verification = async (user) => {
        context: {
            name: user.firstname,
            last_name: user.lastname || '',
-           link:`${url}/verification?token=${user.verification_token}`
+           link:`${url}validate/?key=${key}&email=${usuario.email}&pass=${usuario.pass}`
            
        }
        }, (error, response)=>{
@@ -167,10 +165,6 @@ app.get('/validate', (req, res) => {
    }
 });
 
-app.get('*', (req, res) => {
-   res.json({msg: "nada aqui"})
-});
-
 app.post('/user/add', (req, res) => {
 
    // console.log(req.body)
@@ -203,6 +197,10 @@ app.post('/user', (req, res) => {
       res.json(result);
    });
    // send_mail("LanzaApp", "kpineda18@outlook.com","probando mailer", "<b>probando si manda correo</b>").catch(console.error)
+});
+
+app.get('*', (req, res) => {
+   res.json({msg: "nada aqui"})
 });
 
 // Escuchar peticiones
